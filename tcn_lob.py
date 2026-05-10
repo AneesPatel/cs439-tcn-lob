@@ -397,7 +397,7 @@ def plot_pca_embeddings(embeddings, labels, path="pca_embeddings.png"):
     print(f"[PLOT] PCA plot saved -> {path}")
 
 
-def plot_shap_importance(model, X_te_win, feature_dim, n_background=100, n_explain=200, path="shap_importance.png"):
+def plot_shap_importance(model, X_te_win, feature_dim, n_background=50, n_explain=100, path="shap_importance.png"):
     try:
         import shap
     except ImportError:
@@ -416,7 +416,7 @@ def plot_shap_importance(model, X_te_win, feature_dim, n_background=100, n_expla
         return probs
 
     explainer = shap.KernelExplainer(predict_fn, bg)
-    shap_values = explainer.shap_values(exp, nsamples=50, silent=True)
+    shap_values = explainer.shap_values(exp, nsamples=30, silent=True)
 
     n_levels = (feature_dim - 3) // 4
     feat_names = []
