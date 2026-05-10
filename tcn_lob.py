@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import warnings
 warnings.filterwarnings("ignore")
 import random
@@ -45,14 +44,12 @@ def generate_lob_data(
 ):
     rng = np.random.default_rng(seed)
 
-    # AR(1) imbalance process
     imbalance_series = np.empty(n_snapshots, dtype=np.float32)
     I = 0.0
     for t in range(n_snapshots):
         I = imbalance_ar_rho * I + rng.normal(0.0, np.sqrt(1 - imbalance_ar_rho**2))
         imbalance_series[t] = float(np.clip(I, -1.0, 1.0))
 
-    # mid-price driven by imbalance
     mid_prices = np.empty(n_snapshots, dtype=np.float32)
     mid_prices[0] = mid_price_init
     idio_noise = rng.normal(0.0, price_vol, size=n_snapshots).astype(np.float32)
@@ -75,7 +72,6 @@ def generate_lob_data(
         m = mid_prices[t]
         imb = imbalance_series[t]
 
-        # spread widens when imbalance is negative (bearish) -- makes spread predictive
         spread_scale = 1.0 + 0.5 * max(0.0, float(-imb))
         bid_spacings = np.abs(rng.normal(0.0, tick_size * spread_scale, size=n_levels)) + tick_size
         ask_spacings = np.abs(rng.normal(0.0, tick_size, size=n_levels)) + tick_size
@@ -139,9 +135,9 @@ def temporal_split(X, y, train_frac=0.70, val_frac=0.15):
     i_val = int(N * train_frac)
     i_test = int(N * (train_frac + val_frac))
 
-    X_tr, y_tr = X[:i_val],       y[:i_val]
+    X_tr, y_tr = X[:i_val], y[:i_val]
     X_va, y_va = X[i_val:i_test], y[i_val:i_test]
-    X_te, y_te = X[i_test:],      y[i_test:]
+    X_te, y_te = X[i_test:], y[i_test:]
 
     print(f"[INFO] Split sizes -- train: {len(X_tr)}, val: {len(X_va)}, test: {len(X_te)}")
     return (X_tr, y_tr), (X_va, y_va), (X_te, y_te)
@@ -408,7 +404,6 @@ def plot_shap_importance(model, X_te_win, feature_dim, n_background=100, n_expla
         print("[WARN] shap not installed. Skipping SHAP plot.")
         return
 
-    # collapse time axis -> (N, F)
     X_flat = X_te_win.mean(axis=1)
     bg = X_flat[:n_background]
     exp = X_flat[:n_explain]
@@ -431,13 +426,12 @@ def plot_shap_importance(model, X_te_win, feature_dim, n_background=100, n_expla
         feat_names += [f"AskPx_{i}", f"AskVol_{i}"]
     feat_names += ["Spread", "Imbalance", "VWMid"]
 
-    # shap_values is list of 3 arrays each (n_explain, feature_dim)
-    stacked = np.stack([np.abs(sv) for sv in shap_values], axis=0)  # (3, n_explain, F)
-    mean_abs_shap = stacked.mean(axis=(0, 1))  # (F,)
+    stacked = np.stack([np.abs(sv) for sv in shap_values], axis=0)
+    mean_abs_shap = stacked.mean(axis=(0, 1))
 
     n_top = min(15, len(feat_names))
-    order = np.argsort(mean_abs_shap)[::-1][:n_top]  # top N descending
-    plot_order = order[::-1]  # reverse so highest is at top of barh
+    order = np.argsort(mean_abs_shap)[::-1][:n_top]
+    plot_order = order[::-1]
 
     fig, ax = plt.subplots(figsize=(10, 8))
     ax.barh(
@@ -565,8 +559,8 @@ def main():
     print(f"         Train windows: {X_tr_win.shape}, Val: {X_va_win.shape}, Test: {X_te_win.shape}")
 
     train_loader = to_dataloader(X_tr_win, y_tr_win, shuffle=True)
-    val_loader   = to_dataloader(X_va_win, y_va_win)
-    test_loader  = to_dataloader(X_te_win, y_te_win)
+    val_loader = to_dataloader(X_va_win, y_va_win)
+    test_loader = to_dataloader(X_te_win, y_te_win)
 
     class_weights = compute_class_weights(y_tr_win)
     print(f"[INFO] Class weights: {class_weights.cpu().numpy()}")

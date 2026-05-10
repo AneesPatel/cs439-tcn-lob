@@ -17,7 +17,7 @@ pip install torch scikit-learn numpy matplotlib seaborn shap
 python tcn_lob.py
 ```
 
-It'll take around 15–25 minutes on a normal laptop. When it finishes you'll have five plots saved in the same folder.
+It'll take around 15-25 minutes on a normal laptop. When it finishes you'll have five plots saved in the same folder.
 
 ---
 
@@ -32,6 +32,6 @@ Everything beat random guessing (0.16 F1) and logistic regression (0.50 F1) by a
 ## Files
 
 - `tcn_lob.py` - the whole pipeline in one script
-- `main.tex` - the paper writeup (NeurIPS format)
 - `run.log` - output from the run I used for the paper results
+- `requirements.txt` - pip packages needed to run it
 - `ablation_f1.png`, `confusion_matrix.png`, `pca_embeddings.png`, `shap_importance.png`, `training_curve.png` - figures from the paper
